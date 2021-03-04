@@ -3,16 +3,22 @@
     "browser": true,
     "es2020": true
   },
-  "extends": ["plugin:react/recommended", "airbnb"],
+  "extends": ["plugin:react/recommended", "airbnb-typescript"],
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
+    "project": "./tsconfig.eslint.json",
     "ecmaFeatures": {
       "jsx": true
     },
     "sourceType": "module"
   },
-  "plugins": ["react"],
+  "plugins": ["react", "@typescript-eslint"],
   "rules": {
-    "indent": ["error", 2],
+    "lines-between-class-members": "off",
+    "@typescript-eslint/lines-between-class-members": ["off"],
+    "react/jsx-filename-extension": [2, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }],
+    "react/destructuring-assignment": "off",
+    // "indent": ["error", 2],
     "linebreak-style": 0,
     "quotes": ["error", "single"],
     "semi": ["error", "always"],
@@ -56,13 +62,11 @@
     "max-lines-per-function": ["error", 50],
     "object-curly-newline": ["off"],
     "import/no-extraneous-dependencies": ["off"],
-    "react/jsx-filename-extension": [1, {"extensions": [".js", ".jsx"]}],
     "react/default-props-match-prop-types": [
       "error",
       {"allowRequiredDefaults": false}
     ],
     "react/no-array-index-key": ["off"],
-    "react/destructuring-assignment": ["error", "always"],
     "react/forbid-component-props": ["error"],
     "react/forbid-prop-types": ["error"],
     "react/no-did-mount-set-state": ["error"],

@@ -1,16 +1,17 @@
-import { inBar } from './elements';
-import { addArrOfMatrixes } from '../math/matrixOperations';
+import { NDArray } from 'vectorious';
+import InBar from './InBar';
+import { InPointInput, DFObj } from '../../declarations';
+import { buildFAndDF, addParsedKes, solveSys } from '../math/structureOperations';
 
-export class structure {
+export default class Structure {
   f: number[];
-  nodes: number;
-  arrOfKeGReduced: number[][][];
-  KReduced: number[][];
+  DFs: DFObj[];
+  Ks: NDArray;
+  u: NDArray;
 
-  constructor(f: number[], ...inputs: inBar[]) {
-    this.nodes = inputs.length + 1;
-    this.f = f;
-    this.arrOfKeGReduced = inputs.map(({ KeGReduced }) => KeGReduced);
-    this.KReduced = addArrOfMatrixes(this.arrOfKeGReduced);
+  constructor(inPoints: InPointInput[], inBars: InBar[]) {
+    [this.f, this.DFs] = buildFAndDF(inPoints);
+    this.Ks = addParsedKes(this.DFs, inBars);
+    this.u = solveSys(this.Ks, this.f);
   }
 }

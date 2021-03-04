@@ -1,53 +1,55 @@
-import { adjPoints, sectionType, Idimensions } from '../structureMethods/elements';
+/* eslint-disable no-magic-numbers */
 import { NDArray } from 'vectorious/built';
 import { array as MatrixOps } from 'vectorious/built/core/array';
+import { AdjPoints, SectionTypes, Dimensions } from '../../declarations';
 
-export const dist = (cord: 'x' | 'y', points: adjPoints) => {
-  return cord === 'x' ? (points[1].cordX - points[0].cordX)
-    : (points[1].cordY - points[0].cordY);
+export const dist = (cord: 'x' | 'y', points: AdjPoints) => (
+  cord === 'x' ? (points[1].cordX - points[0].cordX)
+    : (points[1].cordY - points[0].cordY));
+
+export const calcL = (points: AdjPoints) => {
+  const dx2 = dist('x', points) ** 2;
+  const dy2 = dist('y', points) ** 2;
+  return Math.sqrt(dx2 + dy2);
 };
 
-export const calcL = (points: adjPoints) => {
-  return ((dist('y', points) ** 2) + (dist('x', points) ** 2)) ** 0.5;
-};
-
-export const calcA = (section: sectionType, dimensions: Idimensions) => {
+export const calcA = (section: SectionTypes, dimensions: Dimensions) => {
   const { A, height, base, diameter } = dimensions;
-  let calcA = 0;
-  switch(section) {
+  let calcResult = 0;
+  switch (section) {
     case 'circ':
-      if (diameter) calcA = Math.PI * (diameter ** 2) / (4 * (10 ** 4));
+      if (diameter) calcResult = (Math.PI * (diameter ** 2)) / (4 * (10 ** 4));
       break;
     case 'rect':
-      if (height && base) calcA = base * height / (10 ** 4);
+      if (height && base) calcResult = (base * height) / (10 ** 4);
       break;
     default:
-      if (A) calcA = A;
+      if (A) calcResult = A;
   }
-  return calcA;
+  return calcResult;
 };
 
-export const calcI = (section: sectionType, dimensions: Idimensions) => {
+export const calcI = (section: SectionTypes, dimensions: Dimensions) => {
   const { I, height, base, diameter } = dimensions;
-  let calcI = 0;
-  switch(section) {
+  let calcResult = 0;
+  switch (section) {
     case 'circ':
-      if (diameter) calcI = Math.PI * (diameter ** 4) / (64 * (10 ** 8));
+      if (diameter) calcResult = (Math.PI * (diameter ** 4)) / (64 * (10 ** 8));
       break;
     case 'rect':
-      if (height && base) calcI = base * (height ** 3) / (12 * (10 ** 8));
+      if (height && base) calcResult = (base * (height ** 3)) / (12 * (10 ** 8));
       break;
     default:
-      if (I) calcI = I;
+      if (I) calcResult = I;
   }
-  return calcI;
+  return calcResult;
 };
 
 export const calcKeL = (A: number, E: number, I: number, L: number) => {
-  const EAL = E * A / L;
-  const EI12L3 = E * I * 12 / (L ** 3);
-  const EI6L2 = E * I * 6 / (L ** 2);
-  const EI4L = E * I * 4 / L;
+  const EAL = (E * A) / L;
+  const EI12L3 = (E * I * 12) / (L ** 3);
+  const EI6L2 = (E * I * 6) / (L ** 2);
+  const EI4L = (E * I * 4) / L;
   const EI2L = EI4L / 2;
   return new NDArray([
     [EAL, 0, 0, -EAL, 0, 0],
@@ -71,11 +73,11 @@ export const calcT = (cos: number, sen: number, transpose: boolean) => {
   ]);
 };
 
-export const barRestrictions = (points: adjPoints): boolean[] => {
+export const barRestrictions = (points: AdjPoints): boolean[] => {
   const arrOfRest = points.map(({ restrictions }) => restrictions);
   return [...arrOfRest[0], ...arrOfRest[1]];
 };
 
-export const calcKeG = (TeT: NDArray, KeL: NDArray, Te: NDArray) => {
-  return MatrixOps(TeT).multiply(KeL).multiply(Te);
-};
+export const calcKeG = (TeT: NDArray, KeL: NDArray, Te: NDArray) => (
+  MatrixOps(TeT).multiply(KeL).multiply(Te)
+);
