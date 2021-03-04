@@ -1,10 +1,13 @@
 const E10 = 10;
+const NEGATIVE_MULTIPLIER = -1;
+const POSITIVE_MULTIPLIER = 1;
 
 const formatByLanguage = (num: string, language: string) => {
   const arrOfNum = num.split(',');
 
   if (arrOfNum.length === 1) {
     if (arrOfNum[0] === '') return '';
+    if (arrOfNum[0] === '-') return '-';
     return parseInt(arrOfNum[0], 10).toLocaleString(language);
   }
 
@@ -20,7 +23,7 @@ const formatByLanguage = (num: string, language: string) => {
   return `${integerParsed},${decimal}`;
 };
 
-const removeNonNumeric = (num: string) => num.replace(/[^0-9,]/g, '');
+const removeNonNumeric = (num: string) => num.replace(/[^0-9,-]/g, '');
 
 export const formatInputNumber = (num: string, language: string) => {
   const justNumeric = removeNonNumeric(num);
@@ -37,10 +40,16 @@ export const toNumericValue = (str: string) => {
 
   const arrOfNumParsed = arrOfNum.map((value) => {
     if (value.length < 1) return [0, 0];
+    if (/-\d*/g.test(value)) {
+      const valueWithoutDash = value.replace('-', '0');
+      return [parseInt(valueWithoutDash, 10) * NEGATIVE_MULTIPLIER,
+        valueWithoutDash.length];
+    }
     return [parseInt(value, 10), value.length];
   });
   const integer = arrOfNumParsed[0][0];
   const decimal = arrOfNumParsed[1][0];
   const nToDivide = E10 ** arrOfNumParsed[1][1];
-  return integer + (decimal / nToDivide);
+  const isNegative = integer < 0 ? NEGATIVE_MULTIPLIER : POSITIVE_MULTIPLIER;
+  return integer + (decimal / nToDivide) * isNegative;
 };

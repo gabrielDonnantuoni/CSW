@@ -20,7 +20,7 @@ type Props = PropTypes.InferProps<typeof propTypes>;
 
 const InputNumber = (props: Props) => {
   const name = props.name ? props.name : '';
-  const language = props.language ? props.language : '';
+  const language = props.language ? props.language : 'pt-br';
   const placeHolder = props.placeHolder ? props.placeHolder : '';
   const label = props.label ? props.label : '';
   const valueToPointState = props.valueToPointState
