@@ -1,4 +1,6 @@
 /* eslint-disable complexity */
+import { PointActions } from '../actions';
+
 const initialState = {
   id: '',
   cordX: 0,
@@ -7,52 +9,34 @@ const initialState = {
   restrictions: [false, false, false],
 };
 
-interface Action {
-  type: string,
-  payload: {
-    id: string,
-    cordX: number;
-    cordY: number;
-    f0: number;
-    f1: number;
-    f2: number;
-    r0: boolean;
-    r1: boolean;
-    r2: boolean;
-  },
-}
-
-const point = (state = initialState, action: Action) => {
-  const { type, payload } = action;
-  const newState = { ...state };
-  switch (type) {
+const point = (state = initialState, action: PointActions) => {
+  switch (action.type) {
     case 'ID':
-      newState.id = payload.id;
-      return { ...newState };
+      return { ...state, ...action.payload };
     case 'CORDX':
-      newState.cordX = payload.cordX;
-      return { ...newState };
+      return { ...state, ...action.payload };
     case 'CORDY':
-      newState.cordY = payload.cordY;
-      return { ...newState };
+      return { ...state, ...action.payload };
     case 'F0':
-      newState.f[0] = payload.f0;
-      return { ...newState };
+      return { ...state, f: [action.payload.f0, state.f[1], state.f[2]] };
     case 'F1':
-      newState.f[1] = payload.f1;
-      return { ...newState };
+      return { ...state, f: [state.f[0], action.payload.f1, state.f[2]] };
     case 'F2':
-      newState.f[2] = payload.f2;
-      return { ...newState };
+      return { ...state, f: [state.f[0], state.f[1], action.payload.f2] };
     case 'R0':
-      newState.restrictions[0] = payload.r0;
-      return { ...newState };
+      return { ...state,
+        restrictions: [action.payload.r0,
+          state.restrictions[1],
+          state.restrictions[2]] };
     case 'R1':
-      newState.restrictions[1] = payload.r1;
-      return { ...newState };
+      return { ...state,
+        restrictions: [state.restrictions[0],
+          action.payload.r1,
+          state.restrictions[2]] };
     case 'R2':
-      newState.restrictions[2] = payload.r2;
-      return { ...newState };
+      return { ...state,
+        restrictions: [state.restrictions[0],
+          state.restrictions[1], action.payload.r2] };
     default:
       return state;
   }

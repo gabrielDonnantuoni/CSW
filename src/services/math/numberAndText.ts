@@ -11,16 +11,17 @@ const formatByLanguage = (num: string, language: string) => {
     return parseInt(arrOfNum[0], 10).toLocaleString(language);
   }
 
-  const arrOfNumParsed = arrOfNum.map((value) => {
-    if (value.length < 1) return '';
-    return value;
-  });
-  const integer = arrOfNumParsed[0];
-  const decimal = arrOfNumParsed[1];
-  const integerParsed = integer === '' ? ''
-    : parseInt(integer, 10).toLocaleString(language);
+  // const arrOfNumParsed = arrOfNum.map((value) => {
+  //   if (value.length < 1) return '';
+  //   return value;
+  // });
+  let integer = arrOfNum[0];
+  const decimal = arrOfNum[1];
+  if (!integer || integer !== '-') {
+    integer = parseInt(integer, 10).toLocaleString(language);
+  }
 
-  return `${integerParsed},${decimal}`;
+  return `${integer},${decimal}`;
 };
 
 const removeNonNumeric = (num: string) => num.replace(/[^0-9,-]/g, '');

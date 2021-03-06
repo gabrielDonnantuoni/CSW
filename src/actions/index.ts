@@ -2,6 +2,7 @@ import { InPointInput } from '../declarations';
 import { ADD_POINT, REMOVE_POINT, EDIT_POINT } from '../reducers/pointsList';
 
 export { updateNumeric, updateR, updateId } from './pointState';
+export type { PointActions } from './pointState';
 
 export const addPointAction = (point: InPointInput) => ({
   type: ADD_POINT,
