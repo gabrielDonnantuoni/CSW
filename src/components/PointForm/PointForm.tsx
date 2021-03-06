@@ -1,30 +1,31 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Action, Dispatch } from 'redux';
 import { connect } from 'react-redux';
+import { ThunkDispatch } from 'redux-thunk';
 import uniqid from 'uniqid';
 import { InputNumber, InputCheckbox } from '../inputs';
-import { updateId, addPointAction } from '../../actions';
-import { RootState } from '../../reducers';
+import { updateId, addPointAndResetForm, resetPointAction } from '../../actions';
+import { RootState } from '../../store';
 import { InPointInput } from '../../declarations';
 import './PointForm.css';
 
 const { useEffect } = React;
 
 interface StateProps {
-  point: InPointInput,
+  point: InPointInput;
 }
 
 interface DispatchProps {
-  idToPointState: (id: string) => void,
-  addPoint: (point: InPointInput) => void,
+  idToPointState: (id: string) => void;
+  addPoint: (point: InPointInput) => void;
+  resetPoint: () => void;
 }
 
 type Props = PropTypes.InferProps<DispatchProps & StateProps>;
 // type Props = DispatchProps & StateProps;
 
 const PointForm = (props: Props) => {
-  const { idToPointState, point, addPoint } = props;
+  const { idToPointState, point, addPoint, resetPoint } = props;
   const id = uniqid.process();
 
   useEffect(() => {
@@ -33,6 +34,7 @@ const PointForm = (props: Props) => {
 
   const handleClick = () => {
     addPoint(point);
+    resetPoint();
   };
 
   return (
@@ -61,9 +63,10 @@ const PointForm = (props: Props) => {
   );
 };
 
-const mapDispatch = (dispatch: Dispatch<Action>) => ({
+const mapDispatch = (dispatch: ThunkDispatch<{}, {}, any>) => ({
   idToPointState: (id: string) => dispatch(updateId(id)),
-  addPoint: (point: InPointInput) => dispatch(addPointAction(point)),
+  addPoint: (point: InPointInput) => dispatch(addPointAndResetForm(point)),
+  resetPoint: () => dispatch(resetPointAction()),
 });
 
 const mapState = (state: RootState) => ({

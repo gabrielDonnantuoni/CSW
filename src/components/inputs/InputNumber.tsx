@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Action, Dispatch } from 'redux';
 
+import { RootState } from '../../store';
 import { toNumericValue, formatInputNumber } from '../../services/math/numberAndText';
 import { updateNumeric } from '../../actions';
 
@@ -13,7 +14,8 @@ const propTypes = {
   language: PropTypes.string,
   placeHolder: PropTypes.string,
   label: PropTypes.string,
-  valueToPointState: PropTypes.func,
+  valueToPointState: PropTypes.func.isRequired,
+  shouldReset: PropTypes.bool.isRequired,
 };
 
 type Props = PropTypes.InferProps<typeof propTypes>;
@@ -23,8 +25,7 @@ const InputNumber = (props: Props) => {
   const language = props.language ? props.language : 'pt-br';
   const placeHolder = props.placeHolder ? props.placeHolder : '';
   const label = props.label ? props.label : '';
-  const valueToPointState = props.valueToPointState
-    ? props.valueToPointState : () => {};
+  const { valueToPointState, shouldReset } = props;
 
   const [textValue, setTextValue] = useState('');
   const [numericValue, setNumericValue] = useState(0);
@@ -37,6 +38,10 @@ const InputNumber = (props: Props) => {
   useEffect(() => {
     setNumericValue(toNumericValue(textValue));
   }, [textValue]);
+
+  useEffect(() => {
+    if (shouldReset) setTextValue('');
+  }, [shouldReset]);
 
   return (
     <label htmlFor={ name }>
@@ -59,4 +64,8 @@ const mapDispatch = (dispatch: Dispatch<Action>) => ({
   (name: string, value: number) => dispatch(updateNumeric(name, value)),
 });
 
-export default connect(null, mapDispatch)(InputNumber);
+const mapState = (state: RootState) => ({
+  shouldReset: state.pointsList.clearForm,
+});
+
+export default connect(mapState, mapDispatch)(InputNumber);

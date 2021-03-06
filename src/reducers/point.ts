@@ -1,5 +1,5 @@
 /* eslint-disable complexity */
-import { PointActions } from '../actions';
+import { PointActions } from '../declarations';
 
 const initialState = {
   id: '',
@@ -37,6 +37,8 @@ const point = (state = initialState, action: PointActions) => {
       return { ...state,
         restrictions: [state.restrictions[0],
           state.restrictions[1], action.payload.r2] };
+    case 'RESET_POINT':
+      return { ...initialState };
     default:
       return state;
   }

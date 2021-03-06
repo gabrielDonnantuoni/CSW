@@ -1,26 +1,33 @@
-import { InPointInput } from '../declarations';
+import { InPointInput, PointListActions } from '../declarations';
+import { ADD_POINT, REMOVE_POINT, EDIT_POINT, UNCLEAR_INPUTS_POINT,
+  CLEAR_INPUTS_POINT } from '../consts';
 
-export const ADD_POINT = 'ADD_POINT';
-export const REMOVE_POINT = 'REMOVE_POINT';
-export const EDIT_POINT = 'EDIT_POINT';
-
-interface Action {
-  type: string,
-  payload: InPointInput,
+interface State {
+  points: InPointInput[];
+  clearForm: boolean;
 }
 
-const points = (state: InPointInput[] = [], action: Action) => {
-  const { type, payload } = action;
-  switch (type) {
+const initialState: State = {
+  points: [],
+  clearForm: false,
+};
+
+const points = (state = initialState, action: PointListActions) => {
+  switch (action.type) {
     case ADD_POINT:
-      return [
-        ...state,
-        payload,
-      ];
+      return { ...state, points: [...state.points, action.payload] };
     case REMOVE_POINT:
-      return [...state.filter(({ id }) => id !== payload.id)];
+      return { ...state,
+        points: [...state.points
+          .filter(({ id }) => id !== action.payload.id)] };
     case EDIT_POINT:
-      return [...state.map((point) => (point.id === payload.id ? payload : point))];
+      return { ...state,
+        points: [...state.points
+          .map((point) => (point.id === action.payload.id ? action.payload : point))] };
+    case CLEAR_INPUTS_POINT:
+      return { ...state, clearForm: true };
+    case UNCLEAR_INPUTS_POINT:
+      return { ...state, clearForm: false };
     default:
       return state;
   }

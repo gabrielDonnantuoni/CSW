@@ -1,3 +1,6 @@
+export type { default as PointActions } from './pointActions';
+export type { default as PointListActions } from './pointListActions';
+
 export interface InPointInput {
   id: string;
   cordX: number;
