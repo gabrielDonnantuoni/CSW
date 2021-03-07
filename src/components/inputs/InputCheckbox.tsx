@@ -1,17 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { Action, Dispatch } from 'redux';
+// import { connect } from 'react-redux';
+// import { Action, Dispatch } from 'redux';
 
-import { updateR } from '../../actions/pointState';
-import { RootState } from '../../store';
+// import { updateR } from '../../actions/pointState';
 
 const { useState, useEffect } = React;
 
 const propTypes = {
   name: PropTypes.string,
   label: PropTypes.string,
-  rToPointState: PropTypes.func.isRequired,
+  toState: PropTypes.func.isRequired,
   shouldReset: PropTypes.bool.isRequired,
 };
 
@@ -20,7 +19,7 @@ type Props = PropTypes.InferProps<typeof propTypes>;
 const InputCheckbox = (props: Props) => {
   const name = props.name ? props.name : '';
   const label = props.label ? props.label : '';
-  const { rToPointState, shouldReset } = props;
+  const { toState, shouldReset } = props;
 
   const [checked, setChecked] = useState(false);
 
@@ -30,7 +29,7 @@ const InputCheckbox = (props: Props) => {
   };
 
   useEffect(() => {
-    rToPointState(name, checked);
+    toState(name, checked);
   }, [checked]);
 
   useEffect(() => {
@@ -39,7 +38,6 @@ const InputCheckbox = (props: Props) => {
 
   return (
     <label htmlFor={ name }>
-      { label }
       <input
         type="checkbox"
         name={ name }
@@ -47,17 +45,15 @@ const InputCheckbox = (props: Props) => {
         checked={ checked }
         onChange={ handleChange }
       />
+      { label }
     </label>
   );
 };
 
-const mapDispatch = (dispatch: Dispatch<Action>) => ({
-  rToPointState:
-    (name: string, value: boolean) => dispatch(updateR(name, value)),
-});
+// const mapDispatch = (dispatch: Dispatch<Action>) => ({
+//   toState:
+//     (name: string, value: boolean) => dispatch(updateR(name, value)),
+// });
 
-const mapState = (state: RootState) => ({
-  shouldReset: state.pointsList.clearForm,
-});
-
-export default connect(mapState, mapDispatch)(InputCheckbox);
+// export default connect(null, mapDispatch)(InputCheckbox);
+export default InputCheckbox;

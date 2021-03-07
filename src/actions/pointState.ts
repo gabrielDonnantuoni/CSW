@@ -43,7 +43,7 @@ const r2 = (value: boolean) => ({
   payload: { r2: value },
 });
 
-export const updateNumeric = (name: string, value: number) => {
+export const updateCordsAndFs = (name: string, value: number) => {
   switch (name) {
     case 'cordx':
       return cordx(value);

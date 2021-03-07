@@ -1,11 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { Action, Dispatch } from 'redux';
-
-import { RootState } from '../../store';
 import { toNumericValue, formatInputNumber } from '../../services/math/numberAndText';
-import { updateNumeric } from '../../actions';
 
 const { useState, useEffect } = React;
 
@@ -14,7 +9,8 @@ const propTypes = {
   language: PropTypes.string,
   placeHolder: PropTypes.string,
   label: PropTypes.string,
-  valueToPointState: PropTypes.func.isRequired,
+  default: PropTypes.string,
+  toState: PropTypes.func.isRequired,
   shouldReset: PropTypes.bool.isRequired,
 };
 
@@ -25,9 +21,10 @@ const InputNumber = (props: Props) => {
   const language = props.language ? props.language : 'pt-br';
   const placeHolder = props.placeHolder ? props.placeHolder : '';
   const label = props.label ? props.label : '';
-  const { valueToPointState, shouldReset } = props;
+  const defaultValue = props.default ? props.default : '';
+  const { toState, shouldReset } = props;
 
-  const [textValue, setTextValue] = useState('');
+  const [textValue, setTextValue] = useState(defaultValue);
   const [numericValue, setNumericValue] = useState(0);
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,19 +50,10 @@ const InputNumber = (props: Props) => {
         value={ textValue }
         onChange={ handleChange }
         placeholder={ placeHolder }
-        onBlur={ () => valueToPointState(name, numericValue) }
+        onBlur={ () => toState(name, numericValue) }
       />
     </label>
   );
 };
 
-const mapDispatch = (dispatch: Dispatch<Action>) => ({
-  valueToPointState:
-  (name: string, value: number) => dispatch(updateNumeric(name, value)),
-});
-
-const mapState = (state: RootState) => ({
-  shouldReset: state.pointsList.clearForm,
-});
-
-export default connect(mapState, mapDispatch)(InputNumber);
+export default InputNumber;

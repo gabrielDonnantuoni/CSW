@@ -59,7 +59,7 @@
     "complexity": ["error", 8],
     "max-nested-callbacks": ["error", 2],
     "max-depth": ["error", 3],
-    "max-lines-per-function": ["error", 50],
+    // "max-lines-per-function": ["error", 150],
     "object-curly-newline": ["off"],
     "import/no-extraneous-dependencies": ["off"],
     "react/default-props-match-prop-types": [

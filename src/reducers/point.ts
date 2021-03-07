@@ -1,7 +1,7 @@
 /* eslint-disable complexity */
-import { PointActions } from '../declarations';
+import { PointActions, InPointInput } from '../declarations';
 
-const initialState = {
+const initialState: InPointInput = {
   id: '',
   cordX: 0,
   cordY: 0,
