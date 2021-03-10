@@ -1,24 +1,24 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-// import { connect } from 'react-redux';
-// import { Action, Dispatch } from 'redux';
-
-// import { updateR } from '../../actions/pointState';
+// import PropTypes from 'prop-types';
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 const { useState, useEffect } = React;
 
-const propTypes = {
-  name: PropTypes.string,
-  label: PropTypes.string,
-  toState: PropTypes.func.isRequired,
-  shouldReset: PropTypes.bool.isRequired,
-};
-
-type Props = PropTypes.InferProps<typeof propTypes>;
+interface Props {
+  name?: string;
+  label?: string;
+  labelPlacement?: 'end' | 'start' | 'top' | 'bottom';
+  color?: 'default' | 'primary' | 'secondary';
+  toState: (name: string, value: boolean) => void;
+  shouldReset: boolean;
+}
 
 const InputCheckbox = (props: Props) => {
   const name = props.name ? props.name : '';
   const label = props.label ? props.label : '';
+  const labelPlacement = props.labelPlacement ? props.labelPlacement : 'end';
+  const color = props.color ? props.color : 'primary';
   const { toState, shouldReset } = props;
 
   const [checked, setChecked] = useState(false);
@@ -37,23 +37,19 @@ const InputCheckbox = (props: Props) => {
   }, [shouldReset]);
 
   return (
-    <label htmlFor={ name }>
-      <input
-        type="checkbox"
-        name={ name }
-        id={ name }
-        checked={ checked }
-        onChange={ handleChange }
-      />
-      { label }
-    </label>
+    <FormControlLabel
+      label={ label }
+      labelPlacement={ labelPlacement }
+      control={
+        <Checkbox
+          name={ name }
+          checked={ checked }
+          onChange={ handleChange }
+          color={ color }
+        />
+      }
+    />
   );
 };
 
-// const mapDispatch = (dispatch: Dispatch<Action>) => ({
-//   toState:
-//     (name: string, value: boolean) => dispatch(updateR(name, value)),
-// });
-
-// export default connect(null, mapDispatch)(InputCheckbox);
 export default InputCheckbox;

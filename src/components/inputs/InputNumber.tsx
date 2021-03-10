@@ -1,27 +1,26 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import TextField from '@material-ui/core/TextField';
+import InputAdornment from '@material-ui/core/InputAdornment';
 import { toNumericValue, formatInputNumber } from '../../services/math/numberAndText';
 
 const { useState, useEffect } = React;
 
-const propTypes = {
-  name: PropTypes.string,
-  language: PropTypes.string,
-  placeHolder: PropTypes.string,
-  label: PropTypes.string,
-  default: PropTypes.string,
-  toState: PropTypes.func.isRequired,
-  shouldReset: PropTypes.bool.isRequired,
-};
-
-type Props = PropTypes.InferProps<typeof propTypes>;
+interface Props {
+  name?: string;
+  language?: string;
+  unit?: string;
+  label?: string;
+  defaultValue?: string;
+  toState: (name:string, value: number) => void;
+  shouldReset: boolean,
+}
 
 const InputNumber = (props: Props) => {
   const name = props.name ? props.name : '';
   const language = props.language ? props.language : 'pt-br';
-  const placeHolder = props.placeHolder ? props.placeHolder : '';
+  const unit = props.unit ? props.unit : '';
   const label = props.label ? props.label : '';
-  const defaultValue = props.default ? props.default : '';
+  const defaultValue = props.defaultValue ? props.defaultValue : '';
   const { toState, shouldReset } = props;
 
   const [textValue, setTextValue] = useState(defaultValue);
@@ -41,18 +40,17 @@ const InputNumber = (props: Props) => {
   }, [shouldReset]);
 
   return (
-    <label htmlFor={ name }>
-      { label }
-      <input
-        type="text"
-        name={ name }
-        id={ name }
-        value={ textValue }
-        onChange={ handleChange }
-        placeholder={ placeHolder }
-        onBlur={ () => toState(name, numericValue) }
-      />
-    </label>
+    <TextField
+      label={ label }
+      id={ name }
+      name={ name }
+      value={ textValue }
+      onChange={ handleChange }
+      onBlur={ () => toState(name, numericValue) }
+      InputProps={ {
+        endAdornment: <InputAdornment position="end">{ unit }</InputAdornment>,
+      } }
+    />
   );
 };
 
