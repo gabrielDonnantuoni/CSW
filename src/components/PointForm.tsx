@@ -1,7 +1,4 @@
-import React from 'react';
-// import PropTypes from 'prop-types';
-import { connect, ConnectedProps } from 'react-redux';
-import { ThunkDispatch } from 'redux-thunk';
+import React, { useEffect } from 'react';
 import uniqid from 'uniqid';
 import Button from '@material-ui/core/Button';
 import FormLabel from '@material-ui/core/FormLabel';
@@ -11,31 +8,10 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { InputNumber, InputCheckbox } from './inputs';
-import { updateId, addPointAndResetForm, resetPointAction, updateR,
-  updateCordsAndFs } from '../actions';
-import { RootState } from '../store';
-import { InPointInput } from '../declarations';
-
-const { useEffect } = React;
-
-const mapDispatch = (dispatch: ThunkDispatch<{}, {}, any>) => ({
-  idToPointState: (id: string) => dispatch(updateId(id)),
-  rToPointState: (name: string, value: boolean) => dispatch(updateR(name, value)),
-  numberToPointState:
-    (name: string, value: number) => dispatch(updateCordsAndFs(name, value)),
-  addPoint: (point: InPointInput) => dispatch(addPointAndResetForm(point)),
-  resetPoint: () => dispatch(resetPointAction()),
-});
-
-const mapState = (state: RootState) => ({
-  point: state.point,
-  shouldReset: state.pointsList.clearForm,
-});
-
-const connector = connect(mapState, mapDispatch);
-type PropsFromRedux = ConnectedProps<typeof connector>;
-
-type Props = PropsFromRedux;
+import { upId, upCordX, upCordY, upFs, upRs,
+  resetForm, unResetForm } from '../slices/point';
+import { addPoint } from '../slices/project';
+import { useAppDispatch, useAppSelector } from '../hooks';
 
 const useStyles = makeStyles({
   formGroup: {
@@ -49,19 +25,24 @@ const useStyles = makeStyles({
   },
 });
 
-const PointForm = (props: Props) => {
+const PointForm = () => {
   const classes = useStyles();
-  const { idToPointState, point, addPoint, resetPoint, shouldReset,
-    rToPointState, numberToPointState } = props;
+  const dispatch = useAppDispatch();
+  const point = useAppSelector((state) => state.point.point);
+  const shouldReset = useAppSelector((state) => state.point.shouldReset);
+
   const id = uniqid.process();
 
   useEffect(() => {
-    idToPointState(id);
+    dispatch(upId(id));
   }, []);
 
+  const clearForm = () => Promise.resolve(dispatch(resetForm()))
+    .then(() => dispatch(unResetForm()));
+
   const handleClick = () => {
-    addPoint(point);
-    resetPoint();
+    dispatch(addPoint(point));
+    clearForm();
   };
 
   return (
@@ -77,14 +58,14 @@ const PointForm = (props: Props) => {
               label="Cordenada X:"
               unit="m"
               shouldReset={ shouldReset }
-              toState={ numberToPointState }
+              action={ upCordX }
             />
             <InputNumber
               name="cordy"
               label="Cordenada Y:"
               unit="m"
               shouldReset={ shouldReset }
-              toState={ numberToPointState }
+              action={ upCordY }
             />
           </FormGroup>
         </FormControl>
@@ -100,21 +81,24 @@ const PointForm = (props: Props) => {
               unit="kN"
               label="Horizontal (f0:↦)"
               shouldReset={ shouldReset }
-              toState={ numberToPointState }
+              action={ upFs }
+              actionParams={ [0] }
             />
             <InputNumber
               name="f1"
               unit="kN"
               label="Vertical (f1:↥)"
               shouldReset={ shouldReset }
-              toState={ numberToPointState }
+              action={ upFs }
+              actionParams={ [1] }
             />
             <InputNumber
               name="f2"
               unit="kNm"
               label="Momento (f2:↶)"
               shouldReset={ shouldReset }
-              toState={ numberToPointState }
+              action={ upFs }
+              actionParams={ [2] }
             />
           </FormGroup>
         </FormControl>
@@ -129,19 +113,22 @@ const PointForm = (props: Props) => {
               name="r0"
               label="Horizontal (u:↦)"
               shouldReset={ shouldReset }
-              toState={ rToPointState }
+              action={ upRs }
+              actionParams={ [0] }
             />
             <InputCheckbox
               name="r1"
               label="Vertical (v:↥)"
               shouldReset={ shouldReset }
-              toState={ rToPointState }
+              action={ upRs }
+              actionParams={ [1] }
             />
             <InputCheckbox
               name="r2"
               label="Rotação (θ:↶)"
               shouldReset={ shouldReset }
-              toState={ rToPointState }
+              action={ upRs }
+              actionParams={ [2] }
             />
           </FormGroup>
         </FormControl>
@@ -161,4 +148,4 @@ const PointForm = (props: Props) => {
   );
 };
 
-export default connector(PointForm);
+export default PointForm;

@@ -1,7 +1,9 @@
 import React from 'react';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import { createAction } from '@reduxjs/toolkit';
 import { toNumericValue, formatInputNumber } from '../../services/math/numberAndText';
+import { useAppDispatch } from '../../hooks';
 
 const { useState, useEffect } = React;
 
@@ -11,8 +13,9 @@ interface Props {
   unit?: string;
   label?: string;
   defaultValue?: string;
-  toState: (name:string, value: number) => void;
+  action: ReturnType<typeof createAction>;
   shouldReset: boolean,
+  actionParams?: any[],
 }
 
 const InputNumber = (props: Props) => {
@@ -21,7 +24,10 @@ const InputNumber = (props: Props) => {
   const unit = props.unit ? props.unit : '';
   const label = props.label ? props.label : '';
   const defaultValue = props.defaultValue ? props.defaultValue : '';
-  const { toState, shouldReset } = props;
+  const actionParams = props.actionParams ? props.actionParams : [];
+  const { action, shouldReset } = props;
+
+  const dispatch = useAppDispatch();
 
   const [textValue, setTextValue] = useState(defaultValue);
   const [numericValue, setNumericValue] = useState(0);
@@ -39,6 +45,10 @@ const InputNumber = (props: Props) => {
     if (shouldReset) setTextValue('');
   }, [shouldReset]);
 
+  useEffect(() => {
+    dispatch(action(numericValue, ...actionParams));
+  }, [numericValue]);
+
   return (
     <TextField
       label={ label }
@@ -46,7 +56,6 @@ const InputNumber = (props: Props) => {
       name={ name }
       value={ textValue }
       onChange={ handleChange }
-      onBlur={ () => toState(name, numericValue) }
       InputProps={ {
         endAdornment: <InputAdornment position="end">{ unit }</InputAdornment>,
       } }

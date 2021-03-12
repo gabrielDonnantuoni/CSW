@@ -1,17 +1,17 @@
-import React from 'react';
-// import PropTypes from 'prop-types';
+import React, { useState, useEffect } from 'react';
+import { createAction } from '@reduxjs/toolkit';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-
-const { useState, useEffect } = React;
+import { useAppDispatch } from '../../hooks';
 
 interface Props {
   name?: string;
   label?: string;
   labelPlacement?: 'end' | 'start' | 'top' | 'bottom';
   color?: 'default' | 'primary' | 'secondary';
-  toState: (name: string, value: boolean) => void;
+  action: ReturnType<typeof createAction>;
   shouldReset: boolean;
+  actionParams: any[];
 }
 
 const InputCheckbox = (props: Props) => {
@@ -19,7 +19,10 @@ const InputCheckbox = (props: Props) => {
   const label = props.label ? props.label : '';
   const labelPlacement = props.labelPlacement ? props.labelPlacement : 'end';
   const color = props.color ? props.color : 'primary';
-  const { toState, shouldReset } = props;
+  const actionParams = props.actionParams ? props.actionParams : [];
+  const { action, shouldReset } = props;
+
+  const dispatch = useAppDispatch();
 
   const [checked, setChecked] = useState(false);
 
@@ -29,7 +32,7 @@ const InputCheckbox = (props: Props) => {
   };
 
   useEffect(() => {
-    toState(name, checked);
+    dispatch(action(checked, ...actionParams));
   }, [checked]);
 
   useEffect(() => {

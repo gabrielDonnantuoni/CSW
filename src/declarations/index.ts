@@ -1,6 +1,3 @@
-export type { default as PointActions } from './pointActions';
-export type { default as PointListActions } from './pointListActions';
-
 export interface InPointInput {
   id: string;
   cordX: number;
@@ -27,7 +24,18 @@ export interface InBarInput {
 }
 
 export interface DFObj {
-  id: string,
-  idIndex: number,
-  gIndex: number,
+  id: string;
+  idIndex: number;
+  gIndex: number;
+}
+
+export interface Project {
+  inputs: {
+    points: InPointInput[],
+    bars: InBarInput[],
+  };
+}
+
+export interface StoreProject extends Project {
+  tabIndex: number;
 }

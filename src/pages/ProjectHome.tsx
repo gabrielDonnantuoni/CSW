@@ -1,10 +1,10 @@
 import React from 'react';
 
-const Project = () => (
+const ProjectHome = () => (
   <main className="project">
     <input />
   </main>
 );
 // };
 
-export default Project;
+export default ProjectHome;
