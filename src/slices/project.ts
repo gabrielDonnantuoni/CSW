@@ -1,21 +1,28 @@
 import { createAction, createSlice } from '@reduxjs/toolkit';
 import { InPointInput, InBarInput } from '../declarations';
 
-export const addPoint = createAction<InPointInput>('add-point');
-export const removePoint = createAction<string>('remove-point');
-export const editPoint = createAction<InPointInput>('edit-point');
-export const upTabIndex = createAction<number>('up-tab-index');
-
-interface Project {
-  tabIndex: number,
+export interface Project {
+  name: string,
   inputs: {
     points: InPointInput[],
     bars: InBarInput[],
   },
 }
 
-const initialState: Project = {
+export const addPoint = createAction<InPointInput>('add-point');
+export const removePoint = createAction<string>('remove-point');
+export const editPoint = createAction<InPointInput>('edit-point');
+export const upTabIndex = createAction<number>('up-tab-index');
+export const upName = createAction<string>('up-name');
+export const upProject = createAction<Project>('up-project');
+
+export interface ProjectState extends Project {
+  tabIndex: number;
+}
+
+export const initialState: ProjectState = {
   tabIndex: 0,
+  name: '',
   inputs: {
     points: [],
     bars: [],
@@ -30,6 +37,14 @@ const project = createSlice({
     builder
       .addCase(upTabIndex, (state, action) => {
         state.tabIndex = action.payload;
+      })
+      .addCase(upName, (state, action) => {
+        state.name = action.payload;
+      })
+      .addCase(upProject, (state, action) => {
+        state.tabIndex = 0;
+        state.name = action.payload.name;
+        state.inputs = action.payload.inputs;
       })
       .addCase(addPoint, (state, action) => {
         state.inputs.points.push(action.payload);

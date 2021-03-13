@@ -14,6 +14,9 @@ import { addPoint } from '../slices/project';
 import { useAppDispatch, useAppSelector } from '../hooks';
 
 const useStyles = makeStyles({
+  root: {
+    width: '100%',
+  },
   formGroup: {
     width: 'clamp(200px, 30vw, 400px)',
     '& > *': {
@@ -25,13 +28,23 @@ const useStyles = makeStyles({
   },
 });
 
-const PointForm = () => {
+interface Props {
+  id?: string;
+  cordX?: string;
+  cordY?: string;
+  f?: [string, string, string];
+  r?: [boolean, boolean, boolean];
+}
+
+const PointForm = (props: Props) => {
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const point = useAppSelector((state) => state.point.point);
   const shouldReset = useAppSelector((state) => state.point.shouldReset);
 
-  const id = uniqid.process();
+  let id: string;
+  if (props.id) id = props.id;
+  else id = uniqid.process('point-');
 
   useEffect(() => {
     dispatch(upId(id));
@@ -46,7 +59,14 @@ const PointForm = () => {
   };
 
   return (
-    <Grid container component="form" direction="column" alignItems="center" spacing={ 3 }>
+    <Grid
+      container
+      className={ classes.root }
+      component="form"
+      direction="column"
+      alignItems="center"
+      spacing={ 3 }
+    >
       <Grid item>
         <FormControl component="fieldset">
           <FormLabel component="legend">
@@ -59,6 +79,7 @@ const PointForm = () => {
               unit="m"
               shouldReset={ shouldReset }
               action={ upCordX }
+              defaultValue={ props.cordX }
             />
             <InputNumber
               name="cordy"
@@ -66,6 +87,7 @@ const PointForm = () => {
               unit="m"
               shouldReset={ shouldReset }
               action={ upCordY }
+              defaultValue={ props.cordY }
             />
           </FormGroup>
         </FormControl>
@@ -83,6 +105,7 @@ const PointForm = () => {
               shouldReset={ shouldReset }
               action={ upFs }
               actionParams={ [0] }
+              defaultValue={ props.f && props.f[0] }
             />
             <InputNumber
               name="f1"
@@ -91,6 +114,7 @@ const PointForm = () => {
               shouldReset={ shouldReset }
               action={ upFs }
               actionParams={ [1] }
+              defaultValue={ props.f && props.f[1] }
             />
             <InputNumber
               name="f2"
@@ -99,6 +123,7 @@ const PointForm = () => {
               shouldReset={ shouldReset }
               action={ upFs }
               actionParams={ [2] }
+              defaultValue={ props.f && props.f[2] }
             />
           </FormGroup>
         </FormControl>
@@ -115,6 +140,7 @@ const PointForm = () => {
               shouldReset={ shouldReset }
               action={ upRs }
               actionParams={ [0] }
+              defaultValue={ props.r && props.r[0] }
             />
             <InputCheckbox
               name="r1"
@@ -122,6 +148,7 @@ const PointForm = () => {
               shouldReset={ shouldReset }
               action={ upRs }
               actionParams={ [1] }
+              defaultValue={ props.r && props.r[1] }
             />
             <InputCheckbox
               name="r2"
@@ -129,6 +156,7 @@ const PointForm = () => {
               shouldReset={ shouldReset }
               action={ upRs }
               actionParams={ [2] }
+              defaultValue={ props.r && props.r[2] }
             />
           </FormGroup>
         </FormControl>
@@ -138,7 +166,7 @@ const PointForm = () => {
           className={ classes.button }
           type="button"
           variant="contained"
-          color="primary"
+          color="secondary"
           onClick={ handleClick }
         >
           Adicionar ponto

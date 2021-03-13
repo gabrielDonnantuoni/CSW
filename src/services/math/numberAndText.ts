@@ -11,10 +11,6 @@ const formatByLanguage = (num: string, language: string) => {
     return parseInt(arrOfNum[0], 10).toLocaleString(language);
   }
 
-  // const arrOfNumParsed = arrOfNum.map((value) => {
-  //   if (value.length < 1) return '';
-  //   return value;
-  // });
   let integer = arrOfNum[0];
   const decimal = arrOfNum[1];
   if (!integer || integer !== '-') {

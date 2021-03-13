@@ -9,9 +9,10 @@ interface Props {
   label?: string;
   labelPlacement?: 'end' | 'start' | 'top' | 'bottom';
   color?: 'default' | 'primary' | 'secondary';
+  defaultValue?: boolean;
   action: ReturnType<typeof createAction>;
   shouldReset: boolean;
-  actionParams: any[];
+  actionParams?: any[];
 }
 
 const InputCheckbox = (props: Props) => {
@@ -30,6 +31,10 @@ const InputCheckbox = (props: Props) => {
     const { target } = evt;
     setChecked(target.checked);
   };
+
+  useEffect(() => {
+    if (props.defaultValue) setChecked(props.defaultValue);
+  }, []);
 
   useEffect(() => {
     dispatch(action(checked, ...actionParams));

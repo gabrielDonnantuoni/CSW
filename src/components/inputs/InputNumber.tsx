@@ -23,19 +23,22 @@ const InputNumber = (props: Props) => {
   const language = props.language ? props.language : 'pt-br';
   const unit = props.unit ? props.unit : '';
   const label = props.label ? props.label : '';
-  const defaultValue = props.defaultValue ? props.defaultValue : '';
   const actionParams = props.actionParams ? props.actionParams : [];
   const { action, shouldReset } = props;
 
   const dispatch = useAppDispatch();
 
-  const [textValue, setTextValue] = useState(defaultValue);
+  const [textValue, setTextValue] = useState('');
   const [numericValue, setNumericValue] = useState(0);
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     const { target: { value } } = evt;
     setTextValue(formatInputNumber(value, language));
   };
+
+  useEffect(() => {
+    if (props.defaultValue) setTextValue(props.defaultValue);
+  }, []);
 
   useEffect(() => {
     setNumericValue(toNumericValue(textValue));

@@ -15,7 +15,7 @@ const useStyles = makeStyles({
   },
 });
 
-const ProjectHome = () => {
+const ProjectPoints = () => {
   const classes = useStyles();
   const history = useHistory();
 
@@ -34,4 +34,4 @@ const ProjectHome = () => {
   );
 };
 
-export default ProjectHome;
+export default ProjectPoints;

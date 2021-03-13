@@ -1,33 +1,64 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-// import PropTypes from 'prop-types';
+import React, { useState } from 'react';
+import Grid from '@material-ui/core/Grid';
+import { useHistory } from 'react-router-dom';
+import Button from '@material-ui/core/Button';
+import { makeStyles } from '@material-ui/core/styles';
+import { InputText } from '../components/inputs';
 
-const { useState } = React;
+import { upName } from '../slices/project';
+import { useAppSelector } from '../hooks';
+
+const useStyles = makeStyles({
+  root: {
+    width: '100%',
+    '& > *': {
+      width: 'clamp(50px, 50%, 400px)',
+      marginBottom: '16px',
+    },
+    '& .MuiFormControl-root': {
+      marginTop: '30vh',
+    },
+    '& input, & label, & button': {
+      fontSize: '1.7rem',
+    },
+  },
+});
 
 const NewProject = () => {
-  const [value, setValue] = useState('');
+  const classes = useStyles();
+  const history = useHistory();
+  const name = useAppSelector((state) => state.project.name);
 
-  const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
-    const { target } = evt;
-    setValue(target.value);
+  const [shouldReset, setShouldReset] = useState(false);
+
+  const handleClick = () => {
+    setShouldReset(true);
+    history.push(`/${encodeURI(name)}`);
   };
 
   return (
-    <main className="new-project">
-      <input
-        type="text"
-        className="project-title"
-        placeholder="Nome do projeto"
-        value={ value }
-        onChange={ handleChange }
+    <Grid
+      container
+      className={ classes.root }
+      direction="column"
+      alignItems="center"
+    >
+      <InputText
+        name="project-name"
+        label="Nome do projeto"
+        action={ upName }
+        shouldReset={ shouldReset }
       />
-      <Link to={ `/${encodeURI(value)}` }>Iniciar projeto</Link>
-    </main>
+      <Button
+        type="button"
+        variant="contained"
+        color="secondary"
+        onClick={ handleClick }
+      >
+        Iniciar projeto
+      </Button>
+    </Grid>
   );
 };
-
-// NewProject.propTypes = {
-
-// };
 
 export default NewProject;

@@ -89,7 +89,7 @@
     "react/jsx-closing-tag-location": ["error"],
     "react/jsx-curly-newline": ["error"],
     "react/jsx-fragments": ["error"],
-    "react/jsx-max-depth": ["error", {"max": 4}],
+    "react/jsx-max-depth": ["error", {"max": 6}],
     "react/jsx-no-useless-fragment": ["error"],
     "react/jsx-curly-spacing": ["error", {"when": "always"}],
     "react/jsx-equals-spacing": ["error", "never"],

@@ -1,45 +1,54 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect } from 'react';
+import { createAction } from '@reduxjs/toolkit';
+import TextField from '@material-ui/core/TextField';
 
-const { useState } = React;
+import { useAppDispatch } from '../../hooks';
 
 interface Props {
-  name: string,
-  label: string,
+  name?: string;
+  label?: string;
+  defaultValue?: string;
+  action: ReturnType<typeof createAction>;
+  shouldReset: boolean;
+  actionParams?: any[];
 }
 
 const InputText = (props: Props) => {
-  const { name, label } = props;
+  const name = props.name ? props.name : '';
+  const label = props.label ? props.label : '';
+  const actionParams = props.actionParams ? props.actionParams : [];
+  const { action, shouldReset } = props;
 
-  const [value, setValue] = useState('');
+  const dispatch = useAppDispatch();
+
+  const [textValue, setTextValue] = useState('');
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
-    const { target } = evt;
-    setValue(target.value);
+    const { target: { value } } = evt;
+    setTextValue(value);
   };
 
+  useEffect(() => {
+    if (props.defaultValue) setTextValue(props.defaultValue);
+  }, []);
+
+  useEffect(() => {
+    dispatch(action(textValue, ...actionParams));
+  }, [textValue]);
+
+  useEffect(() => {
+    if (shouldReset) setTextValue('');
+  }, [shouldReset]);
+
   return (
-    <label htmlFor={ name }>
-      { label }
-      <input
-        type="text"
-        name={ name }
-        id={ name }
-        value={ value }
-        onChange={ handleChange }
-      />
-    </label>
+    <TextField
+      label={ label }
+      id={ name }
+      name={ name }
+      value={ textValue }
+      onChange={ handleChange }
+    />
   );
-};
-
-InputText.propTypes = {
-  name: PropTypes.string,
-  label: PropTypes.string,
-};
-
-InputText.defaultProps = {
-  name: '',
-  label: '',
 };
 
 export default InputText;

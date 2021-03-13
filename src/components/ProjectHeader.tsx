@@ -5,14 +5,18 @@ import Typography from '@material-ui/core/Typography';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import { RouteComponentProps } from 'react-router-dom';
+// import { RouteComponentProps } from 'react-router-dom';
+
 import ElevationScroll from './ElevationScroll';
 import { ProjectNavTabs } from '../services/data';
+import { useAppSelector, useAppDispatch } from '../hooks';
+import { upTabIndex } from '../slices/project';
 
-const { useState } = React;
-
-interface OwnProps extends RouteComponentProps {
+interface Props {
   projectName: string;
+  history: {
+    push: (path: string) => void;
+  };
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -24,14 +28,15 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const ProjectHeader = (props: OwnProps) => {
+const ProjectHeader = (props: Props) => {
   const classes = useStyles();
   const { projectName, history } = props;
 
-  const [tabIndex, setTabIndex] = useState(0);
+  const dispatch = useAppDispatch();
+  const tabIndex = useAppSelector((state) => state.project.tabIndex);
 
   const handleTabChange = (event: React.ChangeEvent<{}>, newIndex: number) => {
-    setTabIndex(newIndex);
+    dispatch(upTabIndex(newIndex));
   };
 
   const handleTabClick = (event: React.MouseEvent, name: string, path: string) => {
@@ -42,7 +47,7 @@ const ProjectHeader = (props: OwnProps) => {
     <ElevationScroll>
       <header className={ classes.header }>
         <AppBar position="sticky">
-          <Toolbar>
+          <Toolbar disableGutters>
             <Typography variant="h6">
               { `Projeto: ${projectName}` }
             </Typography>
