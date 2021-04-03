@@ -17,7 +17,7 @@ export const verifyExistingProjects = (): ProjectNames[] => {
 };
 
 export const saveProject = (projectState: ProjectState) => {
-  const { tabIndex, ...project } = projectState;
+  const { tabIndex, language, ...project } = projectState;
 
   const existingProjects: Project[] = JSON.parse(localStorage.CswProjects);
   const IsThereThisProject = existingProjects.some(({ name }) => name === project.name);

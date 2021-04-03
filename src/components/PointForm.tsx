@@ -1,61 +1,90 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import uniqid from 'uniqid';
 import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormGroup from '@material-ui/core/FormGroup';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
+import CloseIcon from '@material-ui/icons/Close';
 import { makeStyles } from '@material-ui/core/styles';
+
 import { InputNumber, InputCheckbox } from './inputs';
-import { upId, upCordX, upCordY, upFs, upRs,
-  resetForm, unResetForm } from '../slices/point';
-import { addPoint } from '../slices/project';
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { addPoint, editPoint } from '../slices/project';
+import { useAppDispatch } from '../hooks';
 
 const useStyles = makeStyles({
   root: {
-    width: '100%',
+    backgroundColor: '#424242',
+    width: 'clamp(224px, 38vw, 444px)',
+    borderRadius: '5px',
+    '& > *': {
+      borderBottom: '1px solid white',
+    },
+    '& > :last-child': {
+      border: 'none',
+    },
   },
   formGroup: {
-    width: 'clamp(200px, 30vw, 400px)',
+    width: 'clamp(180px, 30vw, 400px)',
     '& > *': {
       marginBottom: '5px',
     },
   },
-  button: {
-    width: 'clamp(200px, 30vw, 400px)',
+  iconBtn: {
+    padding: '0',
   },
 });
 
 interface Props {
-  id?: string;
-  cordX?: string;
-  cordY?: string;
-  f?: [string, string, string];
-  r?: [boolean, boolean, boolean];
+  defaultValues?: {
+    id: string;
+    cordX: string;
+    cordY: string;
+    f: [string, string, string];
+    r: [boolean, boolean, boolean];
+  };
+  setShowForm: (value: boolean) => void;
 }
+
+type F = [number, number, number];
+type R = [boolean, boolean, boolean];
 
 const PointForm = (props: Props) => {
   const classes = useStyles();
   const dispatch = useAppDispatch();
-  const point = useAppSelector((state) => state.point.point);
-  const shouldReset = useAppSelector((state) => state.point.shouldReset);
 
-  let id: string;
-  if (props.id) id = props.id;
-  else id = uniqid.process('point-');
+  const id = props.defaultValues?.id ? props.defaultValues.id : uniqid.process('point-');
 
-  useEffect(() => {
-    dispatch(upId(id));
-  }, []);
+  const name = (props.defaultValues)
+    ? `Ponto (${props.defaultValues.cordX} ; ${props.defaultValues.cordY})`
+    : 'Novo Ponto';
 
-  const clearForm = () => Promise.resolve(dispatch(resetForm()))
-    .then(() => dispatch(unResetForm()));
+  const [cordX, setCordX] = useState(0);
+  const [cordY, setCordY] = useState(0);
+  const [f0, setF0] = useState(0);
+  const [f1, setF1] = useState(0);
+  const [f2, setF2] = useState(0);
+  const [r0, setR0] = useState(false);
+  const [r1, setR1] = useState(false);
+  const [r2, setR2] = useState(false);
 
   const handleClick = () => {
-    dispatch(addPoint(point));
-    clearForm();
+    const point = {
+      id,
+      cordX,
+      cordY,
+      f: [f0, f1, f2] as F,
+      restrictions: [r0, r1, r2] as R,
+    };
+
+    if (props.defaultValues) {
+      dispatch(editPoint(point));
+    } else {
+      dispatch(addPoint(point));
+    }
+    props.setShowForm(false);
   };
 
   return (
@@ -67,6 +96,12 @@ const PointForm = (props: Props) => {
       alignItems="center"
       spacing={ 3 }
     >
+      <Grid item container justify="space-between" alignItems="center">
+        <Typography variant="h4">{ name }</Typography>
+        <IconButton onClick={ () => props.setShowForm(false) }>
+          <CloseIcon />
+        </IconButton>
+      </Grid>
       <Grid item>
         <FormControl component="fieldset">
           <FormLabel component="legend">
@@ -77,17 +112,15 @@ const PointForm = (props: Props) => {
               name="cordx"
               label="Cordenada X:"
               unit="m"
-              shouldReset={ shouldReset }
-              action={ upCordX }
-              defaultValue={ props.cordX }
+              stateUpdater={ setCordX }
+              defaultValue={ props.defaultValues?.cordX }
             />
             <InputNumber
               name="cordy"
               label="Cordenada Y:"
               unit="m"
-              shouldReset={ shouldReset }
-              action={ upCordY }
-              defaultValue={ props.cordY }
+              stateUpdater={ setCordY }
+              defaultValue={ props.defaultValues?.cordY }
             />
           </FormGroup>
         </FormControl>
@@ -102,28 +135,22 @@ const PointForm = (props: Props) => {
               name="f0"
               unit="kN"
               label="Horizontal (f0:↦)"
-              shouldReset={ shouldReset }
-              action={ upFs }
-              actionParams={ [0] }
-              defaultValue={ props.f && props.f[0] }
+              stateUpdater={ setF0 }
+              defaultValue={ props.defaultValues?.f[0] }
             />
             <InputNumber
               name="f1"
               unit="kN"
               label="Vertical (f1:↥)"
-              shouldReset={ shouldReset }
-              action={ upFs }
-              actionParams={ [1] }
-              defaultValue={ props.f && props.f[1] }
+              stateUpdater={ setF1 }
+              defaultValue={ props.defaultValues?.f[1] }
             />
             <InputNumber
               name="f2"
               unit="kNm"
               label="Momento (f2:↶)"
-              shouldReset={ shouldReset }
-              action={ upFs }
-              actionParams={ [2] }
-              defaultValue={ props.f && props.f[2] }
+              stateUpdater={ setF2 }
+              defaultValue={ props.defaultValues?.f[2] }
             />
           </FormGroup>
         </FormControl>
@@ -137,39 +164,33 @@ const PointForm = (props: Props) => {
             <InputCheckbox
               name="r0"
               label="Horizontal (u:↦)"
-              shouldReset={ shouldReset }
-              action={ upRs }
-              actionParams={ [0] }
-              defaultValue={ props.r && props.r[0] }
+              stateUpdater={ setR0 }
+              defaultValue={ props.defaultValues?.r[0] }
             />
             <InputCheckbox
               name="r1"
               label="Vertical (v:↥)"
-              shouldReset={ shouldReset }
-              action={ upRs }
-              actionParams={ [1] }
-              defaultValue={ props.r && props.r[1] }
+              stateUpdater={ setR1 }
+              defaultValue={ props.defaultValues?.r[1] }
             />
             <InputCheckbox
               name="r2"
               label="Rotação (θ:↶)"
-              shouldReset={ shouldReset }
-              action={ upRs }
-              actionParams={ [2] }
-              defaultValue={ props.r && props.r[2] }
+              stateUpdater={ setR2 }
+              defaultValue={ props.defaultValues?.r[2] }
             />
           </FormGroup>
         </FormControl>
       </Grid>
       <Grid item>
         <Button
-          className={ classes.button }
           type="button"
           variant="contained"
           color="secondary"
           onClick={ handleClick }
+          fullWidth
         >
-          Adicionar ponto
+          {props.defaultValues ? 'Atualizar ponto' : 'Adicionar ponto'}
         </Button>
       </Grid>
     </Grid>

@@ -18,10 +18,12 @@ export const upProject = createAction<Project>('up-project');
 
 export interface ProjectState extends Project {
   tabIndex: number;
+  language: string;
 }
 
 export const initialState: ProjectState = {
   tabIndex: 0,
+  language: 'pt-br',
   name: '',
   inputs: {
     points: [],
@@ -50,12 +52,12 @@ const project = createSlice({
         state.inputs.points.push(action.payload);
       })
       .addCase(removePoint, (state, action) => {
-        state.inputs.points.filter(({ id }) => id !== action.payload);
+        state.inputs.points = state.inputs.points
+          .filter(({ id }) => id !== action.payload);
       })
       .addCase(editPoint, (state, action) => {
-        state.inputs.points.map((point) => (point.id === action.payload.id
-          ? action.payload
-          : point));
+        state.inputs.points = state.inputs.points
+          .map((point) => (point.id === action.payload.id ? action.payload : point));
       });
   },
 });

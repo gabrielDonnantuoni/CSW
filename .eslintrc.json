@@ -56,7 +56,7 @@
     "max-params": ["error", 4],
     "max-lines": ["error", 250],
     "max-statements": ["error", 15, { "ignoreTopLevelFunctions": true }],
-    "complexity": ["error", 8],
+    "complexity": ["error", 11],
     "max-nested-callbacks": ["error", 2],
     "max-depth": ["error", 3],
     // "max-lines-per-function": ["error", 150],
