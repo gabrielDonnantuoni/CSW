@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import Drawer from '@material-ui/core/Drawer';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import MenuIcon from '@material-ui/icons/Menu';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 
 import ElevationScroll from './ElevationScroll';
@@ -26,8 +31,18 @@ const useStyles = makeStyles((theme: Theme) => ({
   header: {
     backgroundColor: theme.palette.primary.main,
   },
-  tabs: {
+  nav: {
     marginLeft: 'auto',
+  },
+  tab: {
+    minWidth: '30px',
+  },
+  gridDrawer: {
+    height: '75vh',
+    padding: '10vh 8px',
+    '& > *': {
+      marginBottom: '12px',
+    },
   },
   projectName: {
     marginLeft: theme.spacing(2),
@@ -47,6 +62,8 @@ const useStyles = makeStyles((theme: Theme) => ({
 const ProjectHeader = (props: Props) => {
   const classes = useStyles();
   const { projectName, history } = props;
+  const vwLess850 = useMediaQuery('(max-width:850px)');
+  const [openDrawer, setOpenDrawer] = useState(false);
 
   const dispatch = useAppDispatch();
   const projectState = useAppSelector((state) => state.project);
@@ -55,9 +72,11 @@ const ProjectHeader = (props: Props) => {
     dispatch(upTabIndex(newIndex));
   };
 
-  const handleTabClick = (event: React.MouseEvent, name: string, path: string) => {
+  const handleNavClick = (event: React.MouseEvent, name: string, path: string) => {
     history.push(`/${name}/${path}`);
   };
+
+  const handleDrawerToggle = () => { setOpenDrawer(!openDrawer); };
 
   const leaveProject = () => {
     saveProject(projectState);
@@ -81,19 +100,58 @@ const ProjectHeader = (props: Props) => {
           <Typography variant="h6" className={ classes.projectName }>
             { `Projeto: ${projectName}` }
           </Typography>
-          <Tabs
-            value={ projectState.tabIndex }
-            onChange={ handleTabChange }
-            className={ classes.tabs }
-          >
-            { ProjectNavTabs.map((tabProps) => (
-              <Tab
-                key={ tabProps.id }
-                { ...tabProps }
-                onClick={ (e) => handleTabClick(e, projectName, tabProps.path) }
-              />
-            )) }
-          </Tabs>
+          { vwLess850 ? (
+            <>
+              <IconButton
+                color="secondary"
+                onClick={ handleDrawerToggle }
+                className={ classes.nav }
+              >
+                <MenuIcon style={ { fontSize: 28 } } />
+              </IconButton>
+              <Drawer
+                anchor="right"
+                variant="temporary"
+                onClose={ handleDrawerToggle }
+                open={ openDrawer }
+                ModalProps={ { keepMounted: true } }
+              >
+                <Grid
+                  container
+                  alignItems="center"
+                  direction="column"
+                  className={ classes.gridDrawer }
+                >
+                  { ProjectNavTabs.map(({ label, path }) => (
+                    <Button
+                      key={ label }
+                      variant="contained"
+                      color="secondary"
+                      fullWidth
+                      onClick={ (e) => handleNavClick(e, projectName, path) }
+                    >
+                      { label }
+                    </Button>
+                  )) }
+                </Grid>
+              </Drawer>
+            </>
+          ) : (
+            <Tabs
+              value={ projectState.tabIndex }
+              onChange={ handleTabChange }
+              className={ classes.nav }
+            >
+              { ProjectNavTabs.map((tabProps) => (
+                <Tab
+                  key={ tabProps.id }
+                  { ...tabProps }
+                  onClick={ (e) => handleNavClick(e, projectName, tabProps.path) }
+                  className={ classes.tab }
+                />
+              )) }
+            </Tabs>
+          ) }
         </Toolbar>
       </AppBar>
     </ElevationScroll>

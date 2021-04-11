@@ -18,12 +18,14 @@ const FIVE_MINUTES = 300000;
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
     width: '100%',
+    paddingBottom: '16px',
   },
   backdrop: {
     zIndex: 1000,
   },
   addBtnWrapper: {
     width: '438.203px',
+    margin: '0 8px 16px 8px',
     '& > button': {
       height: '283px',
       width: '100%',

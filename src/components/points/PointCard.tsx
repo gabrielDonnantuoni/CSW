@@ -8,7 +8,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Backdrop from '@material-ui/core/Backdrop';
 import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 
 import { removePoint } from '../../slices/project';
@@ -16,13 +16,14 @@ import { InPointInput } from '../../declarations';
 import { useAppDispatch } from '../../hooks';
 import PointForm from '../PointForm';
 import { formatInputNumber } from '../../services/math/numberAndText';
+import PointDataRow from './PointDataRow';
 
 const DECIMAL = 10;
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
     backgroundColor: '#313131',
-    marginBottom: '10px',
+    margin: '0 8px 16px 8px',
   },
   editButton: {
     backgroundColor: theme.palette.warning.main,
@@ -73,56 +74,27 @@ const PointCard = (props: Props) => {
 
   const editPoint = () => { setShowForm(true); };
 
-  type Length3Indexes = 0 | 1 | 2;
+  const vwLess600 = useMediaQuery('(max-width:600px)');
 
-  const valuesRow = (value: string | boolean, index: Length3Indexes,
-    type: 'regular' | 'header') => {
-    let typography;
-    const variant = type === 'regular' ? 'body1' : 'h6';
-    if (type === 'header') {
-      typography = (<Typography variant={ variant }>{`${value}`}</Typography>);
-    } else if (typeof value === 'string') {
-      const unit = index === 2 ? 'kNm' : 'kN';
-      typography = (<Typography variant={ variant }>{`${value} ${unit}`}</Typography>);
-    } else {
-      const restriction = value ? 'Fixo' : 'Livre';
-      typography = (<Typography variant={ variant }>{`${restriction}`}</Typography>);
-    }
-
-    return (
-      <Grid key={ index } item xs>
-        { typography }
-      </Grid>
-    );
+  const contentHead = () => {
+    const result = ['Horizontal ↦', 'Vertical ↥', 'Momento ↶'];
+    if (vwLess600) result[1] = 'Vertical - ↥';
+    return result;
   };
 
-  type StrOrBool = string | boolean;
-
-  const mapRow = (data: Array<StrOrBool>,
-    type: 'regular' | 'header') => data.map((value, index) => (
-    valuesRow(value, index as Length3Indexes, type)));
-
-  const dataGridRow = (data: string[] | boolean[],
-    label: string, type: 'regular' | 'header') => (
-      <Grid container spacing={ 1 }>
-        <Grid item xs={ 3 }>
-          <Typography variant="h6">{ label }</Typography>
-        </Grid>
-        <Grid item container xs={ 9 } spacing={ 2 } alignItems="center">
-          { mapRow(data, type) }
-        </Grid>
-      </Grid>
-  );
-
-  const contentHead = ['Horizontal ↦', 'Vertical ↥', 'Momento ↶'];
+  const vectorText = () => {
+    const vectorF = vwLess600 ? 'F' : 'Esforços';
+    const vectorR = vwLess600 ? 'R' : 'Restrições';
+    return { f: vectorF, r: vectorR };
+  };
 
   return (
     <Card variant="elevation" className={ classes.root }>
       <CardHeader title={ `Ponto (${formattedPoint.cordX} ; ${formattedPoint.cordY})` } />
       <CardContent>
-        { dataGridRow(contentHead, 'Vetor', 'header') }
-        { dataGridRow(formattedPoint.f, 'Esforços', 'regular') }
-        { dataGridRow(formattedPoint.r, 'Restrições', 'regular') }
+        <PointDataRow data={ contentHead() } label="Vetor" type="header" />
+        <PointDataRow data={ formattedPoint.f } label={ vectorText().f } type="regular" />
+        <PointDataRow data={ formattedPoint.r } label={ vectorText().r } type="regular" />
       </CardContent>
       <CardActions>
         <Grid container justify="space-between">
