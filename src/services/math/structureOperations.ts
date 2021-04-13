@@ -5,6 +5,8 @@ import { array as MatrixOps } from 'vectorious/built/core/array';
 import { InPointInput, DFObj } from '../../declarations';
 import InBar from '../structureMethods/InBar';
 
+const toMatrix = (array: unknown) => (array as number[][]);
+
 export const buildFAndDF = (inputs: InPointInput[]) => {
   const result: [number[], DFObj[]] = [[], []];
   let resultIndex = 0;
@@ -32,7 +34,7 @@ export const parseKes = (DFs: DFObj[], inBars: InBar[]) => {
   const parseds: NDArray[] = [];
   inBars.forEach(({ KeG, points }) => {
     const [{ id: id1 }, { id: id2 }] = points;
-    const KEG = KeG.toArray();
+    const KEG = toMatrix(KeG.toArray());
     const DFsIndexs = DFs
       .filter(({ id }) => [id1, id2].includes(id))
       .reduce((acc: number[][], { id, idIndex, gIndex }, i) => {
@@ -42,9 +44,9 @@ export const parseKes = (DFs: DFObj[], inBars: InBar[]) => {
         if (id === id2) acc[0][i] = idIndex + 3;
         return acc;
       }, []); // [[...idIndex], [...gIndex]]
-    const newKeG = initiateKs(DFs.length).toArray();
+    const newKeG = toMatrix(initiateKs(DFs.length).toArray());
     newKeG.forEach((row, iRow) => {
-      const iRowMatch = DFsIndexs[1].indexOf(iRow);
+      const iRowMatch = DFsIndexs[1] ? DFsIndexs[1].indexOf(iRow) : -1;
       if (iRowMatch !== -1) {
         row.map((col, iCol) => {
           const iColMatch = DFsIndexs[1].indexOf(iCol);
