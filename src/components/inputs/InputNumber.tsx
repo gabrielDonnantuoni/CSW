@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import { toNumericValue, formatInputNumber } from '../../services/math/numberAndText';
@@ -8,11 +8,12 @@ const { useState, useEffect } = React;
 interface Props {
   name?: string;
   language?: string;
-  unit?: string;
+  unit?: string | ReactElement;
   label?: string;
   defaultValue?: string;
-  stateUpdater: (...params: any[]) => void;
+  stateUpdater: (newState: number) => void;
   fullWidth?: boolean;
+  shouldReset: boolean;
 }
 
 const InputNumber = (props: Props) => {
@@ -20,8 +21,8 @@ const InputNumber = (props: Props) => {
   const language = props.language ? props.language : 'pt-br';
   const unit = props.unit ? props.unit : '';
   const label = props.label ? props.label : '';
-  const fullWidth = props.fullWidth ? props.fullWidth : true;
-  const { stateUpdater } = props;
+  const fullWidth = props.fullWidth ? props.fullWidth : false;
+  const { stateUpdater, shouldReset } = props;
 
   const [textValue, setTextValue] = useState('');
   const [numericValue, setNumericValue] = useState(0);
@@ -42,6 +43,10 @@ const InputNumber = (props: Props) => {
   useEffect(() => {
     stateUpdater(numericValue);
   }, [numericValue]);
+
+  useEffect(() => {
+    if (shouldReset) setTextValue('');
+  }, [shouldReset]);
 
   return (
     <TextField

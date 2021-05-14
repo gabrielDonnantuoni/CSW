@@ -6,8 +6,7 @@ import { useHistory } from 'react-router-dom';
 import ProjectHeader from '../components/ProjectHeader';
 import { useAppSelector, useTimer } from '../hooks';
 import { saveProject } from '../services/storage';
-
-const FIVE_MINUTES = 300000;
+import { FIVE_MINUTES } from '../consts';
 
 const useStyles = makeStyles({
   root: {

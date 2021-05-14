@@ -1,9 +1,8 @@
 /* eslint-disable max-nested-callbacks */
 /* eslint-disable no-magic-numbers */
-import { NDArray } from 'vectorious/built';
-import { array as MatrixOps } from 'vectorious/built/core/array';
+import { NDArray } from 'vectorious';
 import { InPointInput, DFObj } from '../../declarations';
-import InBar from '../structureMethods/InBar';
+import Bar from '../structureMethods/Bar';
 
 const toMatrix = (array: unknown) => (array as number[][]);
 
@@ -30,7 +29,7 @@ const initiateKs = (nDF: number) => {
   return new NDArray(result, { shape: [nDF, nDF] });
 };
 
-export const parseKes = (DFs: DFObj[], inBars: InBar[]) => {
+export const parseKes = (DFs: DFObj[], inBars: Bar[]) => {
   const parseds: NDArray[] = [];
   inBars.forEach(({ KeG, points }) => {
     const [{ id: id1 }, { id: id2 }] = points;
@@ -65,12 +64,12 @@ export const parseKes = (DFs: DFObj[], inBars: InBar[]) => {
   return parseds;
 };
 
-export const addParsedKes = (DFs: DFObj[], inBars: InBar[]) => {
+export const addParsedKes = (DFs: DFObj[], inBars: Bar[]) => {
   const parsedKes = parseKes(DFs, inBars);
-  return parsedKes.reduce((acc, cur) => MatrixOps(acc).add(cur));
+  return parsedKes.reduce((acc, cur) => acc.add(cur));
 };
 
 export const solveSys = (K: NDArray, f: number[]) => {
   const fMatrix = new NDArray(f, { shape: [f.length, 1] });
-  return MatrixOps(K).solve(fMatrix);
+  return K.solve(fMatrix);
 };

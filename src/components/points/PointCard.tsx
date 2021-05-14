@@ -14,7 +14,7 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import { removePoint } from '../../slices/project';
 import { InPointInput } from '../../declarations';
 import { useAppDispatch } from '../../hooks';
-import PointForm from '../PointForm';
+import PointForm from '../forms/PointForm';
 import { formatInputNumber } from '../../services/math/numberAndText';
 import PointDataRow from './PointDataRow';
 

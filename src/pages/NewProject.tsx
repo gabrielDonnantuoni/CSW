@@ -3,10 +3,11 @@ import Grid from '@material-ui/core/Grid';
 import { useHistory } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
-import { InputText } from '../components/inputs';
 
+import { InputText } from '../components/inputs';
 import { upName } from '../slices/project';
-import { useAppSelector } from '../hooks';
+import { useAppDispatch } from '../hooks';
+import { HALF_SECOND } from '../consts';
 
 const useStyles = makeStyles({
   root: {
@@ -27,13 +28,16 @@ const useStyles = makeStyles({
 const NewProject = () => {
   const classes = useStyles();
   const history = useHistory();
-  const name = useAppSelector((state) => state.project.name);
+  const dispatch = useAppDispatch();
 
+  const [projectName, setProjectName] = useState('');
   const [shouldReset, setShouldReset] = useState(false);
 
   const handleClick = () => {
+    dispatch(upName(projectName));
     setShouldReset(true);
-    history.push(`/${encodeURI(name)}`);
+    history.push(`/${encodeURI(projectName)}`);
+    setTimeout(() => setShouldReset(false), HALF_SECOND);
   };
 
   return (
@@ -46,7 +50,7 @@ const NewProject = () => {
       <InputText
         name="project-name"
         label="Nome do projeto"
-        action={ upName }
+        stateUpdater={ setProjectName }
         shouldReset={ shouldReset }
       />
       <Button

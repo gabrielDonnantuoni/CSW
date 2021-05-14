@@ -8,7 +8,8 @@ interface Props {
   labelPlacement?: 'end' | 'start' | 'top' | 'bottom';
   color?: 'default' | 'primary' | 'secondary';
   defaultValue?: boolean;
-  stateUpdater: (...params: any[]) => void;
+  stateUpdater: (newState: boolean) => void;
+  shouldReset: boolean;
 }
 
 const InputCheckbox = (props: Props) => {
@@ -16,7 +17,7 @@ const InputCheckbox = (props: Props) => {
   const label = props.label ? props.label : '';
   const labelPlacement = props.labelPlacement ? props.labelPlacement : 'end';
   const color = props.color ? props.color : 'primary';
-  const { stateUpdater } = props;
+  const { stateUpdater, shouldReset } = props;
 
   const [checked, setChecked] = useState(false);
 
@@ -32,6 +33,10 @@ const InputCheckbox = (props: Props) => {
   useEffect(() => {
     stateUpdater(checked);
   }, [checked]);
+
+  useEffect(() => {
+    if (shouldReset) setChecked(false);
+  }, [shouldReset]);
 
   return (
     <FormControlLabel

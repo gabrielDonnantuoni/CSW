@@ -1,25 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { createAction } from '@reduxjs/toolkit';
 import TextField from '@material-ui/core/TextField';
-
-import { useAppDispatch } from '../../hooks';
+import InputAdornment from '@material-ui/core/InputAdornment';
 
 interface Props {
   name?: string;
   label?: string;
   defaultValue?: string;
-  action: ReturnType<typeof createAction>;
+  fullWidth?: boolean;
+  prefix?: string;
+  stateUpdater: (newState: string) => void;
   shouldReset: boolean;
-  actionParams?: any[];
 }
 
 const InputText = (props: Props) => {
   const name = props.name ? props.name : '';
   const label = props.label ? props.label : '';
-  const actionParams = props.actionParams ? props.actionParams : [];
-  const { action, shouldReset } = props;
-
-  const dispatch = useAppDispatch();
+  const prefix = props.prefix ? props.prefix : '';
+  const fullWidth = props.fullWidth ? props.fullWidth : false;
+  const { stateUpdater, shouldReset } = props;
 
   const [textValue, setTextValue] = useState('');
 
@@ -33,7 +31,7 @@ const InputText = (props: Props) => {
   }, []);
 
   useEffect(() => {
-    dispatch(action(textValue, ...actionParams));
+    stateUpdater(textValue);
   }, [textValue]);
 
   useEffect(() => {
@@ -47,6 +45,10 @@ const InputText = (props: Props) => {
       name={ name }
       value={ textValue }
       onChange={ handleChange }
+      fullWidth={ fullWidth }
+      InputProps={ {
+        startAdornment: <InputAdornment position="start">{ prefix }</InputAdornment>,
+      } }
     />
   );
 };

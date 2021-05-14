@@ -11,9 +11,8 @@ import ProjectHeader from '../components/ProjectHeader';
 import { useAppSelector, useTimer } from '../hooks';
 import { saveProject } from '../services/storage';
 import PointCard from '../components/points/PointCard';
-import PointForm from '../components/PointForm';
-
-const FIVE_MINUTES = 300000;
+import PointForm from '../components/forms/PointForm';
+import { FIVE_MINUTES } from '../consts';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -49,8 +48,6 @@ const ProjectPoints = () => {
 
   const [showForm, setShowForm] = useState(false);
 
-  const handleOpenForm = () => { setShowForm(true); };
-
   return (
     <Grid
       container
@@ -68,7 +65,7 @@ const ProjectPoints = () => {
           <Button
             type="button"
             variant="contained"
-            onClick={ handleOpenForm }
+            onClick={ () => setShowForm(true) }
           >
             <AddIcon style={ { fontSize: 40 } } />
           </Button>
