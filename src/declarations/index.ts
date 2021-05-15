@@ -17,18 +17,23 @@ export interface SectionProps {
   diameter?: number,
 }
 
-export interface SimpleLoad {
+export interface MomentLoad {
   p: number;
   d1: number;
 }
 
-export interface ComplexLoad extends SimpleLoad {
+export interface SimpleLoad {
+  px: number;
+  py: number;
+  d1: number;
+}
+
+export interface DistLoad extends SimpleLoad {
   d2: number;
 }
 
-export interface VaryingLoad {
-  p: number;
-  point: 'start' | 'end';
+export interface TriLoad extends DistLoad {
+  maxValueSide: 'right' | 'left';
 }
 
 export interface VaryingTemperature {
@@ -37,11 +42,10 @@ export interface VaryingTemperature {
 }
 
 export interface Loads {
-  pointLoadCrossAxis?: SimpleLoad[];
-  pointLoadMainAxis?: SimpleLoad[];
-  uniformDistLoad?: ComplexLoad[];
-  varyingDistLoad?: VaryingLoad[];
-  pointMoment?: SimpleLoad[];
+  pointLoad?: SimpleLoad[];
+  uniformDistLoad?: DistLoad[];
+  triangularDistLoad?: TriLoad[];
+  pointMoment?: MomentLoad[];
   temperature?: VaryingTemperature;
 }
 
@@ -74,6 +78,10 @@ export interface InBarWithOutf0 {
   Te: NDArray;
   TeT: NDArray;
   KeG: NDArray;
+}
+
+export interface InBarWithT2x2 extends InBarWithOutf0 {
+  T2x2: NDArray;
 }
 
 export interface DFObj {

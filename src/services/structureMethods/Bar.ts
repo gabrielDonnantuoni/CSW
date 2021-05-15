@@ -23,7 +23,10 @@ export default class Bar {
   Te: NDArray;
   TeT: NDArray;
   KeG: NDArray;
-  f0: NDArray;
+  f0: {
+    local: NDArray,
+    global: NDArray,
+  };
 
   constructor(inputs: InBarInput) {
     this.points = inputs.points;

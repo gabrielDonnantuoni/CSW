@@ -10,7 +10,7 @@ export default class Structure {
   u: NDArray;
 
   constructor(points: InPointInput[], bars: Bar[]) {
-    [this.f, this.DFs] = buildFAndDF(points);
+    [this.f, this.DFs] = buildFAndDF(points, bars);
     this.Ks = addParsedKes(this.DFs, bars);
     this.u = solveSys(this.Ks, this.f);
   }

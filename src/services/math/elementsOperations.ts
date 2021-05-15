@@ -2,7 +2,7 @@
 /* eslint-disable no-magic-numbers */
 import { NDArray } from 'vectorious';
 import { AdjPoints, SectionTypes, SectionProps,
-  InPointInput, InBarWithOutf0 } from '../../declarations';
+  InPointInput, InBarWithOutf0, InBarWithT2x2 } from '../../declarations';
 
 export const dist = (axis: 'X' | 'Y', points: AdjPoints) => {
   const coord = `cord${axis}` as 'cordX' | 'cordY';
@@ -110,23 +110,27 @@ export const belongsToLineEq = ([pStart, pEnd]: AdjPoints, otherPoint: InPointIn
 
 const initf0Contribution = () => (new NDArray([0, 0, 0, 0, 0, 0], { shape: [6, 1] }));
 
-const generatePointLoadCrossAxisContribution = (bar: InBarWithOutf0) => {
-  const { loads: { pointLoadCrossAxis: arr }, L } = bar;
+const generatePointLoadContribution = (bar: InBarWithT2x2) => {
+  const { loads: { pointLoad: arr }, L, T2x2 } = bar;
   const f0Contribution = initf0Contribution();
   if (!arr) return f0Contribution;
-  return arr.reduce((acc, { p, d1 }) => {
+  return arr.reduce((acc, { px, py, d1 }) => {
+    const globalPs = new NDArray([px, py], { shape: [2, 1] });
+    const [qx, qy] = T2x2.multiply(globalPs).reshape(1, 2).toArray()[0] as number[];
     const [a, b] = [d1, L - d1];
-    const Mstart = (p * a * (b ** 2)) / (L ** 2);
-    const Mend = (-p * (a ** 2) * b) / (L ** 2);
-    const Vstart = ((p * b + Mstart + Mend) / L);
-    const Vend = p - Vstart;
-    const curContribution = new NDArray([0, Vstart, Mstart, 0, Vend, Mend],
+    const Mstart = (qy * a * (b ** 2)) / (L ** 2);
+    const Mend = (-qy * (a ** 2) * b) / (L ** 2);
+    const Vstart = ((qy * b + Mstart + Mend) / L);
+    const Vend = qy - Vstart;
+    const Hstart = (-qx * b) / L;
+    const Hend = (-qx * a) / L;
+    const curContribution = new NDArray([Hstart, Vstart, Mstart, Hend, Vend, Mend],
       { shape: [6, 1] });
     return acc.add(curContribution);
   }, f0Contribution);
 };
 
-const generatePointMomentContribution = (bar: InBarWithOutf0) => {
+const generatePointMomentContribution = (bar: InBarWithT2x2) => {
   const { loads: { pointMoment: arr }, L } = bar;
   const f0Contribution = initf0Contribution();
   if (!arr) return f0Contribution;
@@ -142,60 +146,59 @@ const generatePointMomentContribution = (bar: InBarWithOutf0) => {
   }, f0Contribution);
 };
 
-const generatePointLoadMainAxisContribution = (bar: InBarWithOutf0) => {
-  const { loads: { pointLoadMainAxis: arr }, L } = bar;
+const generateUniformDistLoadContribution = (bar: InBarWithT2x2) => {
+  const { loads: { uniformDistLoad: arr }, L, T2x2 } = bar;
   const f0Contribution = initf0Contribution();
   if (!arr) return f0Contribution;
-  return arr.reduce((acc, { p, d1 }) => {
-    const [a, b] = [d1, L - d1];
-    const Hstart = (-p * b) / L;
-    const Hend = (-p * a) / L;
-    const curContribution = new NDArray([Hstart, 0, 0, Hend, 0, 0],
-      { shape: [6, 1] });
-    return acc.add(curContribution);
-  }, f0Contribution);
-};
-
-const generateUniformDistLoadContribution = (bar: InBarWithOutf0) => {
-  const { loads: { uniformDistLoad: arr }, L } = bar;
-  const f0Contribution = initf0Contribution();
-  if (!arr) return f0Contribution;
-  return arr.reduce((acc, { p, d1, d2 }) => {
+  return arr.reduce((acc, { px, py, d1, d2 }) => {
+    const globalPs = new NDArray([px, py], { shape: [2, 1] });
+    const [qx, qy] = T2x2.multiply(globalPs).reshape(1, 2).toArray()[0] as number[];
     const c = L - d1 - d2;
     const [a, b] = [d1 + (c / 2), d2 + (c / 2)];
-    const Mstart = ((p * c) / (12 * (L ** 2)))
+    const Mstart = ((qy * c) / (12 * (L ** 2)))
       * (12 * a * (b ** 2) + (c ** 2) * (L - 3 * b));
-    const Mend = -Mstart - (3 * p * (c ** 3) * (b - a)) / (12 * (L ** 2));
-    const Vstart = (p * c * b + Mstart + Mend) / L;
-    const Vend = p * c - Vstart;
-    const curContribution = new NDArray([0, Vstart, Mstart, 0, Vend, Mend],
+    const Mend = -Mstart - (3 * qy * (c ** 3) * (b - a)) / (12 * (L ** 2));
+    const Vstart = (qy * c * b + Mstart + Mend) / L;
+    const Vend = qy * c - Vstart;
+    const Hstart = (-qx * c * b) / L;
+    const Hend = (-qx * c * a) / L;
+    const curContribution = new NDArray([Hstart, Vstart, Mstart, Hend, Vend, Mend],
       { shape: [6, 1] });
     return acc.add(curContribution);
   }, f0Contribution);
 };
 
-const generateVaryingDistLoadContribution = (bar: InBarWithOutf0) => {
-  const { loads: { varyingDistLoad: arr }, L } = bar;
+const generateTriangularDistLoadContribution = (bar: InBarWithT2x2) => {
+  const { loads: { triangularDistLoad: arr }, L, T2x2 } = bar;
   const f0Contribution = initf0Contribution();
   if (!arr) return f0Contribution;
-  return arr.reduce((acc, { p, point }) => {
-    let [auxMstart, auxMend, auxVstart, auxVend] = [20, 30, 7, 3];
-    if (point === 'end') {
-      [auxMstart, auxMend, auxVstart, auxVend] = [30, 20, 3, 7];
+  return arr.reduce((acc, { px, py, d1, d2, maxValueSide }) => {
+    const globalPs = new NDArray([px, py], { shape: [2, 1] });
+    const [qx, qy] = T2x2.multiply(globalPs).reshape(1, 2).toArray()[0] as number[];
+    const c = L - d1 - d2;
+    const [b, d] = [d1 + c, L - d1 - (2 * c) / 3];
+
+    let Mstart = ((qy * c) / (2 * (L ** 2)))
+      * ((d ** 2) * (d - L) + ((c ** 2) / 3) * ((L / 3) + ((17 * c) / 90) - (b / 2)));
+    let Mend = ((-qy * c) / (2 * (L ** 2)))
+    * (d * ((d - L) ** 2) + ((c ** 2) / 6) * ((L / 3) + ((17 * c) / 45) - b));
+    let Vstart = ((qy * c) / (2 * (L ** 3)))
+      * ((d ** 2) * (3 * L - 2 * d) - ((c ** 2) / 3) * ((L / 2) - b + ((17 * c) / 45)));
+    let Vend = ((qy * c) / 2) - Vstart;
+    let Hstart = (-qx * c * d) / (2 * L);
+    let Hend = (-qx * c * (L - d)) / (2 * L);
+
+    if (maxValueSide === 'left') {
+      [Hstart, Vstart, Mstart,
+        Hend, Vend, Mend] = [Hend, Vend, -Mend, Hstart, Vstart, -Mstart];
     }
-    const pl = p * L;
-    const pl2 = p * (L ** 2);
-    const Mstart = pl2 / auxMstart;
-    const Mend = -pl2 / auxMend;
-    const Vstart = (pl * auxVstart) / 20;
-    const Vend = (pl * auxVend) / 20;
-    const curContribution = new NDArray([0, Vstart, Mstart, 0, Vend, Mend],
+    const curContribution = new NDArray([Hstart, Vstart, Mstart, Hend, Vend, Mend],
       { shape: [6, 1] });
     return acc.add(curContribution);
   }, f0Contribution);
 };
 
-const generateTemperatureLoadContribution = (bar: InBarWithOutf0) => {
+const generateTemperatureLoadContribution = (bar: InBarWithT2x2) => {
   const { loads: { temperature: temps }, alpha, A, E, I, H } = bar;
   const f0Contribution = initf0Contribution();
   if (!temps) return f0Contribution;
@@ -210,14 +213,19 @@ const generateTemperatureLoadContribution = (bar: InBarWithOutf0) => {
 };
 
 export const calcf0 = (bar: InBarWithOutf0) => {
+  const { sen, cos, TeT } = bar;
+  const T2x2 = new NDArray([[cos, sen], [-sen, cos]], { shape: [2, 2] });
+  const Tbar = { ...bar, T2x2 };
   const f0Arr = [
-    generatePointLoadCrossAxisContribution(bar),
-    generatePointMomentContribution(bar),
-    generatePointLoadMainAxisContribution(bar),
-    generateUniformDistLoadContribution(bar),
-    generateVaryingDistLoadContribution(bar),
-    generateTemperatureLoadContribution(bar),
+    generatePointLoadContribution(Tbar),
+    generatePointMomentContribution(Tbar),
+    generateUniformDistLoadContribution(Tbar),
+    generateTriangularDistLoadContribution(Tbar),
+    generateTemperatureLoadContribution(Tbar),
   ];
   const f0 = f0Arr.reduce((acc, cur) => acc.add(cur));
-  return bar.TeT.multiply(f0);
+  return {
+    local: f0,
+    global: TeT.multiply(f0),
+  };
 };

@@ -6,18 +6,32 @@ import Bar from '../structureMethods/Bar';
 
 const toMatrix = (array: unknown) => (array as number[][]);
 
-export const buildFAndDF = (inputs: InPointInput[]) => {
+export const buildFAndDF = (inPoints: InPointInput[], bars: Bar[]) => {
   const result: [number[], DFObj[]] = [[], []];
   let resultIndex = 0;
-  inputs.forEach(({ id, f, restrictions }) => {
-    restrictions.forEach((value, index) => {
+  inPoints.forEach((point) => {
+    point.restrictions.forEach((value, rIndex) => {
       if (!value) {
-        result[0][resultIndex] = f[index];
-        result[1][resultIndex] = { id, idIndex: index, gIndex: resultIndex };
+        const f0AtIndex = bars
+          .filter(({ points }) => {
+            const matchPoint = points.find((barPoint) => (barPoint.id === point.id));
+            if (!matchPoint) return false;
+            return true;
+          })
+          .map(({ f0: { global }, points }) => {
+            const fg = global.reshape(1, 6).toArray()[0] as number[];
+            const matchIdx = points.indexOf(point);
+            return matchIdx === 0 ? fg[rIndex] : fg[rIndex + 3];
+          })
+          .reduce((acc, cur) => acc + cur);
+
+        result[0][resultIndex] = point.f[rIndex] - f0AtIndex;
+        result[1][resultIndex] = { id: point.id, idIndex: rIndex, gIndex: resultIndex };
         resultIndex += 1;
       }
     });
   });
+
   return result;
 };
 
